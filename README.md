@@ -1,6 +1,6 @@
 # magReadPlot
 
-Hyomin Kim's RM3100_Mag_Read_Plot.py wrapped in a wxPython GUI shell.  Meant make processing RM3100 Magnetometer logs more convenient.
+Hyomin Kim's RM3100_Mag_Read_Plot.py wrapped in a wxPython GUI shell.  Meant to make processing of RM3100 Magnetometer logs more convenient.
 
 Requires:
 - Python 3.6+
