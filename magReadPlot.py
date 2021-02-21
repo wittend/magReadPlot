@@ -9,7 +9,6 @@
 # 02/01/2021
 #============================================================================================
 import wx
-
 # begin wxGlade: extracode
 import os
 import sys
@@ -17,13 +16,18 @@ from pathlib import Path
 from plotPanel import *
 # end wxGlade
 
+
 class TopFrame(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: TopFrame.__init__
         kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.SetSize((1000, 750))
+        self.fileNotSaved = False
+        self.SetSize((1000, 700))
         self.SetTitle("magReadPlot")
+        self.homedir = os.environ['HOME']
+        
+        self.config = wx.Config("magReadPlot")
 
         # Menu Bar
         self.topFrameMenubar = wx.MenuBar()
@@ -43,6 +47,19 @@ class TopFrame(wx.Frame):
 
         # Tool Bar
         self.topFrameToolbar = wx.ToolBar(self, -1)
+        tool = self.topFrameToolbar.AddTool(wx.ID_ANY, "Load", wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_TOOLBAR, (24, 24)), wx.NullBitmap, wx.ITEM_NORMAL, "Select and load log dataset", "Select and load log dataset")
+        self.Bind(wx.EVT_TOOL, self.onLoadData, id=tool.GetId())
+        tool = self.topFrameToolbar.AddTool(wx.ID_ANY, "Plot", wx.ArtProvider.GetBitmap(wx.ART_EXECUTABLE_FILE, wx.ART_TOOLBAR, (24, 24)), wx.NullBitmap, wx.ITEM_NORMAL, "Plot data as graph", "Plot data as graph")
+        self.Bind(wx.EVT_TOOL, self.onPlotData, id=tool.GetId())
+        tool = self.topFrameToolbar.AddTool(wx.ID_ANY, "Print", wx.ArtProvider.GetBitmap(wx.ART_PRINT, wx.ART_TOOLBAR, (24, 24)), wx.NullBitmap, wx.ITEM_NORMAL, "Print plotted data", "Print plotted data")
+        self.Bind(wx.EVT_TOOL, self.onPrintPlot, id=tool.GetId())
+        tool = self.topFrameToolbar.AddTool(wx.ID_ANY, "Save", wx.ArtProvider.GetBitmap(wx.ART_FILE_SAVE, wx.ART_TOOLBAR, (24, 24)), wx.NullBitmap, wx.ITEM_NORMAL, "Save plot as bitmap file", "Save plot as bitmap file")
+        self.Bind(wx.EVT_TOOL, self.onSavePlot, id=tool.GetId())
+        tool = self.topFrameToolbar.AddTool(wx.ID_ANY, "Clear", wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, (24, 24)), wx.NullBitmap, wx.ITEM_NORMAL, "Clear plot and processed data", "Clear plot and processed data")
+        self.Bind(wx.EVT_TOOL, self.onPlotClear, id=tool.GetId())
+        self.topFrameToolbar.AddSeparator()
+        tool = self.topFrameToolbar.AddTool(wx.ID_ANY, "Exit", wx.ArtProvider.GetBitmap(wx.ART_DELETE, wx.ART_TOOLBAR, (24, 24)), wx.NullBitmap, wx.ITEM_NORMAL, "Exit this program", "Exit this program")
+        self.Bind(wx.EVT_TOOL, self.onExit, id=tool.GetId())
         self.SetToolBar(self.topFrameToolbar)
         self.topFrameToolbar.Realize()
         # Tool Bar end
@@ -52,47 +69,93 @@ class TopFrame(wx.Frame):
 
         self.topLeftSplitterPane = wx.Panel(self.TopSplitterWindow, wx.ID_ANY)
         self.topLeftSplitterPane.SetMinSize((275, -1))
-
         sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.dirTreeCtrl = wx.GenericDirCtrl(self.topLeftSplitterPane, wx.ID_ANY)
+        self.dirTreeCtrl = wx.GenericDirCtrl(self.topLeftSplitterPane, wx.ID_ANY, dir=self.homedir,)
         sizer_1.Add(self.dirTreeCtrl, 1, wx.EXPAND, 0)
-
         self.topRightSplitterPane = wx.Panel(self.TopSplitterWindow, wx.ID_ANY)
-
         sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
-
         self.panel_1 = wx.Panel(self.topRightSplitterPane, wx.ID_ANY)
         sizer_2.Add(self.panel_1, 1, wx.EXPAND, 0)
-
         sizer_3 = wx.BoxSizer(wx.VERTICAL)
-
-        #self.plotPanel = PlotPanel(self.panel_1, wx.ID_ANY)
         self.plotPanel = PlotPanel(self.panel_1)
         sizer_3.Add(self.plotPanel, 1, wx.EXPAND, 0)
-
         self.panel_1.SetSizer(sizer_3)
-
         self.topRightSplitterPane.SetSizer(sizer_2)
-
         self.topLeftSplitterPane.SetSizer(sizer_1)
-
         self.TopSplitterWindow.SplitVertically(self.topLeftSplitterPane, self.topRightSplitterPane)
-
         self.Layout()
-
+        self.Bind(wx.EVT_CLOSE, self.OnClose, self)
         # end wxGlade
+        tree = self.dirTreeCtrl.GetTreeCtrl()
+        self.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelect, id=tree.GetId())       
+        self.plotPanel.init_plot_data()
+        
 
+    def OnSelect(self, event):
+        """
+            OnSelect()
+        """
+        filePath = self.dirTreeCtrl.GetPath()
+        if(os.path.isdir(filePath) != True):
+            print('self.dirTreeCtrl.GetPath(): ' + self.dirTreeCtrl.GetPath())
+            self.plotPanel.readData(self.dirTreeCtrl.GetPath())
+        #     self.ddCtrl.ClearAll()
+        #     self.ddCtrl.DeleteAllColumns()
+        #     fr = SWxLogFileReader()
+        #     fr.OpenLogFile(self.dirWidget.GetPath(), self.ddCtrl)
+        else:
+            print('Not a file: ' + self.dirTreeCtrl.GetPath())
+            
     def onFileOpen(self, event):  # wxGlade: TopFrame.<event_handler>
         print("Event handler 'onFileOpen' not implemented!")
         event.Skip()
+
     def onFileExit(self, event):  # wxGlade: TopFrame.<event_handler>
         print("Event handler 'onFileExit' not implemented!")
-        event.Skip()
+        self.OnClose(event)
+ #       event.Skip()
+
     def onHelpAbout(self, event):  # wxGlade: TopFrame.<event_handler>
         print("Event handler 'onHelpAbout' not implemented!")
         event.Skip()
-# end of class TopFrame
+
+    def onLoadData(self, event):  # wxGlade: TopFrame.<event_handler>
+        #print("Event handler 'onLoadData' not implemented!")
+        self.plotPanel.OnWhiz(event)
+        #event.Skip()
+
+    def onPlotData(self, event):  # wxGlade: TopFrame.<event_handler>
+        print("Event handler 'onPlotData' not implemented!")
+        event.Skip()
+
+    def onPrintPlot(self, event):  # wxGlade: TopFrame.<event_handler>
+        print("Event handler 'onPrintPlot' not implemented!")
+        event.Skip()
+
+    def onSavePlot(self, event):  # wxGlade: TopFrame.<event_handler>
+        print("Event handler 'onSavePlot' not implemented!")
+        event.Skip()
+
+    def onPlotClear(self, event):  # wxGlade: TopFrame.<event_handler>
+        print("Event handler 'onPlotClear' not implemented!")
+        event.Skip()
+
+    def onExit(self, event):  # wxGlade: TopFrame.<event_handler>
+        #print("Event handler 'onExit' not implemented!")
+        self.OnClose(event)
+        #event.Skip()
+
+    def OnClose(self, event):
+        # if event.CanVeto() and self.fileNotSaved:
+        #     if wx.MessageBox("The file has not been saved... continue closing?", "Please confirm", wx.ICON_QUESTION | wx.YES_NO) != wx.YES:
+        #         event.Veto()
+        #         return
+        # self.config.Write("WindowTop", 0)
+        # self.config.Write("WindowLeft", 10)
+        # self.config.Write("WindowHeight", 100)
+        # self.config.Write("WindowWidth", 100)
+        self.Destroy()  # you may also do:  event.Skip()
+                        # since the default event handler does call Destroy(), too# end of class TopFrame
 
 class TheApp(wx.App):
     def OnInit(self):
