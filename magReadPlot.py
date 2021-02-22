@@ -99,6 +99,7 @@ class TopFrame(wx.Frame):
         if(os.path.isdir(filePath) != True):
             print('self.dirTreeCtrl.GetPath(): ' + self.dirTreeCtrl.GetPath())
             self.plotPanel.readData(self.dirTreeCtrl.GetPath())
+            self.plotPanel.draw()
         #     self.ddCtrl.ClearAll()
         #     self.ddCtrl.DeleteAllColumns()
         #     fr = SWxLogFileReader()
