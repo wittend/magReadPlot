@@ -16,6 +16,14 @@ from pathlib import Path
 from plotPanel import *
 # end wxGlade
 
+# ===== Input Parameters ========================================================
+# date = '2021/02/22'
+# t_start = '00:00:00'
+# t_stop = '23:59:59'
+# station_code = 'KD0EAG'
+data_dir = '/PSWS/Srawdata'
+plot_dir = '/PSWS/Splot'
+# ============================================================================
 
 class TopFrame(wx.Frame):
     def __init__(self, *args, **kwds):
@@ -25,7 +33,8 @@ class TopFrame(wx.Frame):
         self.fileNotSaved = False
         self.SetSize((1000, 700))
         self.SetTitle("magReadPlot")
-        self.homedir = os.environ['HOME']
+        self.homedir = os.environ['HOME'] + data_dir
+        #self.homedir = self.homedir + '/PSWS/Srawdata/'
         
         self.config = wx.Config("magReadPlot")
 
@@ -66,30 +75,42 @@ class TopFrame(wx.Frame):
 
         self.TopSplitterWindow = wx.SplitterWindow(self, wx.ID_ANY)
         self.TopSplitterWindow.SetMinimumPaneSize(20)
-
+        
         self.topLeftSplitterPane = wx.Panel(self.TopSplitterWindow, wx.ID_ANY)
-        self.topLeftSplitterPane.SetMinSize((275, -1))
+        self.topLeftSplitterPane.SetMinSize((225, -1))
+        
         sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
         self.dirTreeCtrl = wx.GenericDirCtrl(self.topLeftSplitterPane, wx.ID_ANY, dir=self.homedir,)
         sizer_1.Add(self.dirTreeCtrl, 1, wx.EXPAND, 0)
+        
         self.topRightSplitterPane = wx.Panel(self.TopSplitterWindow, wx.ID_ANY)
-        sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
-        self.panel_1 = wx.Panel(self.topRightSplitterPane, wx.ID_ANY)
-        sizer_2.Add(self.panel_1, 1, wx.EXPAND, 0)
+        # self.topRightSplitterPane = wx.Panel(self.TopSplitterWindow, wx.ID_ANY)
+        
+        # sizer_2 = wx.BoxSizer(wx.HORIZONTAL)
+        # self.panel_1 = wx.Panel(self.topRightSplitterPane, wx.ID_ANY)
+        # sizer_2.Add(self.panel_1, 1, wx.EXPAND, 0)
+        
+        # sizer_3 = wx.BoxSizer(wx.VERTICAL)
+        # self.plotPanel = PlotPanel(self.panel_1)
+        # sizer_3.Add(self.plotPanel, 1, wx.EXPAND, 0)
+        
         sizer_3 = wx.BoxSizer(wx.VERTICAL)
-        self.plotPanel = PlotPanel(self.panel_1)
+        self.plotPanel = PlotPanel(self.topRightSplitterPane)
         sizer_3.Add(self.plotPanel, 1, wx.EXPAND, 0)
-        self.panel_1.SetSizer(sizer_3)
-        self.topRightSplitterPane.SetSizer(sizer_2)
+        
+        #self.panel_1.SetSizer(sizer_3)
+        # self.topRightSplitterPane.SetSizer(sizer_2)
+        self.topRightSplitterPane.SetSizer(sizer_3)
         self.topLeftSplitterPane.SetSizer(sizer_1)
         self.TopSplitterWindow.SplitVertically(self.topLeftSplitterPane, self.topRightSplitterPane)
+        self.TopSplitterWindow.SetSashPosition(225)
         self.Layout()
         self.Bind(wx.EVT_CLOSE, self.OnClose, self)
         # end wxGlade
         tree = self.dirTreeCtrl.GetTreeCtrl()
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelect, id=tree.GetId())       
-        self.plotPanel.init_plot_data()
-        
+        #self.plotPanel.init_plot_data()
+        #self.plotPanel.plt.show()
 
     def OnSelect(self, event):
         """
@@ -98,21 +119,23 @@ class TopFrame(wx.Frame):
         filePath = self.dirTreeCtrl.GetPath()
         if(os.path.isdir(filePath) != True):
             print('self.dirTreeCtrl.GetPath(): ' + self.dirTreeCtrl.GetPath())
+            #self.plotPanel.plt.close()
+            #self.plotPanel.plt.clf()
+            #self.plotPanel.plt.cla()
             self.plotPanel.readData(self.dirTreeCtrl.GetPath())
             self.plotPanel.draw()
-        #     self.ddCtrl.ClearAll()
-        #     self.ddCtrl.DeleteAllColumns()
-        #     fr = SWxLogFileReader()
-        #     fr.OpenLogFile(self.dirWidget.GetPath(), self.ddCtrl)
-        else:
-            print('Not a file: ' + self.dirTreeCtrl.GetPath())
+            # self.plotPanel.plt.show()
+              #self.plotPanel.fit()
+            # self.plotPanel.plt.show()
+        # else:
+        #     print('Not a file: ' + self.dirTreeCtrl.GetPath())
             
     def onFileOpen(self, event):  # wxGlade: TopFrame.<event_handler>
         print("Event handler 'onFileOpen' not implemented!")
         event.Skip()
 
     def onFileExit(self, event):  # wxGlade: TopFrame.<event_handler>
-        print("Event handler 'onFileExit' not implemented!")
+        #print("Event handler 'onFileExit' not implemented!")
         self.OnClose(event)
  #       event.Skip()
 
