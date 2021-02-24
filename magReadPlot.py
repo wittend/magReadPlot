@@ -109,9 +109,7 @@ class TopFrame(wx.Frame):
         # end wxGlade
         tree = self.dirTreeCtrl.GetTreeCtrl()
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.OnSelect, id=tree.GetId())       
-        #self.plotPanel.init_plot_data()
-        #self.plotPanel.plt.show()
-
+ 
     def OnSelect(self, event):
         """
             OnSelect()
@@ -119,16 +117,10 @@ class TopFrame(wx.Frame):
         filePath = self.dirTreeCtrl.GetPath()
         if(os.path.isdir(filePath) != True):
             print('self.dirTreeCtrl.GetPath(): ' + self.dirTreeCtrl.GetPath())
-            #self.plotPanel.plt.close()
-            #self.plotPanel.plt.clf()
-            #self.plotPanel.plt.cla()
+            self.plotPanel.resetPlot()
             self.plotPanel.readData(self.dirTreeCtrl.GetPath())
-            self.plotPanel.draw()
-            # self.plotPanel.plt.show()
-              #self.plotPanel.fit()
-            # self.plotPanel.plt.show()
-        # else:
-        #     print('Not a file: ' + self.dirTreeCtrl.GetPath())
+            # self.plotPanel.draw()
+            self.plotPanel.Layout()
             
     def onFileOpen(self, event):  # wxGlade: TopFrame.<event_handler>
         print("Event handler 'onFileOpen' not implemented!")
@@ -174,15 +166,16 @@ class TopFrame(wx.Frame):
         #     if wx.MessageBox("The file has not been saved... continue closing?", "Please confirm", wx.ICON_QUESTION | wx.YES_NO) != wx.YES:
         #         event.Veto()
         #         return
-        # self.config.Write("WindowTop", 0)
-        # self.config.Write("WindowLeft", 10)
-        # self.config.Write("WindowHeight", 100)
-        # self.config.Write("WindowWidth", 100)
+        self.config.WriteInt("WindowTop", 0)
+        self.config.WriteInt("WindowLeft", 10)
+        self.config.WriteInt("WindowHeight", 100)
+        self.config.WriteInt("WindowWidth", 100)
         self.Destroy()  # you may also do:  event.Skip()
                         # since the default event handler does call Destroy(), too# end of class TopFrame
 
 class TheApp(wx.App):
     def OnInit(self):
+        config = wx.Config("magReadPlot")
         self.topFrame = TopFrame(None, wx.ID_ANY)
         self.SetTopWindow(self.topFrame)
         self.topFrame.Show()

@@ -42,7 +42,10 @@ station_code = 'KD0EAG'
 class PlotPanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent, -1)
+        self.createPlot()
 
+
+    def createPlot(self):
         self.fgm_data       = []
         self.year           = date[0:4]
         self.month          = date[5:7]
@@ -119,13 +122,7 @@ class PlotPanel(wx.Panel):
         self.Epoch = np.array(self.Epoch[0:len(self.Bx)])  #to match the new array size with the moving averaged array. 
         self.Bt = np.sqrt(self.Bx**2 + self.By**2 + self.Bz**2)
 
-    #--------------------------------------------------
-    #  draw()
-    #--------------------------------------------------
-    def draw(self):        
-        # Plot graph
-        #self.fig = plt.figure(1, figsize=(6, 8))  #Plot window size                     
-        # Graph 1
+        # Subplot 1
         self.ax1 = self.fig.add_subplot(411)
         self.box = self.ax1.get_position()
         self.plt.subplots_adjust(left=self.box.x0, right=self.box.x1-0.08, top=self.box.y1, bottom=0.1, hspace=0.1)
@@ -145,6 +142,7 @@ class PlotPanel(wx.Panel):
         self.ax1.set_ylim(47600, 47800)
         self.ax1.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
         
+        # Subplot 2
         self.ax2 = self.fig.add_subplot(412)
         self.ax2.plot(self.Epoch, self.By, label='By', linewidth=0.5)
 
@@ -159,6 +157,7 @@ class PlotPanel(wx.Panel):
         self.ax2.set_ylim(-100, 100)
         self.ax2.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
         
+        # Subplot 3
         self.ax3 = self.fig.add_subplot(413)
         self.ax3.plot(self.Epoch, self.Bz, label='Bz', linewidth=0.5)
 
@@ -173,6 +172,7 @@ class PlotPanel(wx.Panel):
         self.ax3.set_ylim(-15400, -15200)
         self.ax3.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
         
+        # Subplot 4
         self.ax4 = self.fig.add_subplot(414)
         self.ax4.plot(self.Epoch, self.Bt, label='Bt', linewidth=0.5)
         self.ax4.set_xlim([self.ep_start, self.ep_stop])     #without this, the time range will not show up properly because there are missing data.
@@ -194,7 +194,26 @@ class PlotPanel(wx.Panel):
 
         self.toolbar.update()       # Not sure why this is needed - ADS
         #self.fig.show()
+        # self.Layout()
+
         
+    #--------------------------------------------------
+    #  resetPlot()
+    #--------------------------------------------------
+    def resetPlot(self):
+        self.plt.close()
+        self.plt = None
+        self.createPlot()
+        # self.ax1 = None
+        # self.ax2 = None
+        # self.ax3 = None
+        # self.ax4 = None
+        # self.plt.clf()
+        # self.plt.cla()
+        # self.plt.close()
+        # self.plt = None
+        # self.Fit()
+
     #--------------------------------------------------
     #  OnSavePlot()
     #--------------------------------------------------
