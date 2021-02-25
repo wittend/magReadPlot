@@ -43,7 +43,7 @@ class PlotPanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent, -1)
         self.createPlot()
-
+        self.Fit()
 
     def createPlot(self):
         self.fgm_data       = []
@@ -60,19 +60,21 @@ class PlotPanel(wx.Panel):
         self.doy            = self.date_time.timetuple().tm_yday
 
         self.plt = plot
-        #self.fig = Figure((5, 4), 75)
         self.fig = self.plt.figure(1, figsize=(5, 4))       # Plot window size
         self.canvas = FigureCanvas(self, -1, self.fig)
         self.toolbar = NavigationToolbar(self.canvas)       # matplotlib toolbar
         self.toolbar.Realize()
 
         # Now put all into a sizer
-        sizer = wx.BoxSizer(wx.VERTICAL)
+        # sizer = wx.BoxSizer(wx.VERTICAL)
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
         # This way of adding to sizer allows resizing
-        sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
+        # sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
+        self.sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
         # Best to allow the toolbar to resize!
-        sizer.Add(self.toolbar, 0, wx.GROW)
-        self.SetSizer(sizer)
+        # sizer.Add(self.toolbar, 0, wx.GROW)
+        self.sizer.Add(self.toolbar, 0, wx.GROW)
+        self.SetSizer(self.sizer)
         self.Fit()
         # self.plt.show()
         # self.resize_event()
@@ -193,8 +195,6 @@ class PlotPanel(wx.Panel):
         self.ax4.xaxis.set_major_formatter(self.date_formatter)
 
         self.toolbar.update()       # Not sure why this is needed - ADS
-        #self.fig.show()
-        # self.Layout()
 
         
     #--------------------------------------------------
@@ -204,15 +204,7 @@ class PlotPanel(wx.Panel):
         self.plt.close()
         self.plt = None
         self.createPlot()
-        # self.ax1 = None
-        # self.ax2 = None
-        # self.ax3 = None
-        # self.ax4 = None
-        # self.plt.clf()
-        # self.plt.cla()
-        # self.plt.close()
-        # self.plt = None
-        # self.Fit()
+        self.Fit()
 
     #--------------------------------------------------
     #  OnSavePlot()

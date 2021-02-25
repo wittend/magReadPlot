@@ -119,8 +119,8 @@ class TopFrame(wx.Frame):
             print('self.dirTreeCtrl.GetPath(): ' + self.dirTreeCtrl.GetPath())
             self.plotPanel.resetPlot()
             self.plotPanel.readData(self.dirTreeCtrl.GetPath())
-            # self.plotPanel.draw()
             self.plotPanel.Layout()
+            self.plotPanel.SendSizeEventToParent()
             
     def onFileOpen(self, event):  # wxGlade: TopFrame.<event_handler>
         print("Event handler 'onFileOpen' not implemented!")
@@ -136,8 +136,7 @@ class TopFrame(wx.Frame):
         event.Skip()
 
     def onLoadData(self, event):  # wxGlade: TopFrame.<event_handler>
-        #print("Event handler 'onLoadData' not implemented!")
-        self.plotPanel.OnWhiz(event)
+        print("Event handler 'onLoadData' not implemented!")
         #event.Skip()
 
     def onPlotData(self, event):  # wxGlade: TopFrame.<event_handler>
